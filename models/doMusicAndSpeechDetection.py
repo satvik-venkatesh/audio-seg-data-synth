@@ -20,6 +20,7 @@ from tensorflow.keras import layers
 """# Functions"""
 
 def smooth_output(output, min_speech=1.3, min_music=3.4, max_silence_speech=0.4, max_silence_music=0.6):
+    # This function was adapted from https://github.com/qlemaire22/speech-music-detection
     duration_frame = 220 / 22050
     n_frame = output.shape[1]
 
