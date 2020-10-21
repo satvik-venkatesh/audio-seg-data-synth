@@ -158,6 +158,13 @@ def mk_preds_fa(audio_path, hop_size = 6.0, discard = 1.0, win_length = 8.0, sam
   in_signal_22k = librosa.resample(in_signal, orig_sr=in_sr, target_sr=sampling_rate)
   in_signal = np.copy(in_signal_22k)
 
+  # Pad the input signal if it is shorter than 8 s.
+
+  if in_signal.shape[0] < int(8.0 * sampling_rate):
+  	pad_signal = np.zeros((int(8.0 * sampling_rate)))
+  	pad_signal[:in_signal.shape[0]] = in_signal
+  	in_signal = np.copy(pad_signal)
+
   audio_clip_length_samples = in_signal.shape[0]
   print('audio_clip_length_samples is {}'.format(audio_clip_length_samples))
 
