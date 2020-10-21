@@ -17,62 +17,9 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 
-"""# Functions"""
-
-def smooth_output(output, min_speech=1.3, min_music=3.4, max_silence_speech=0.4, max_silence_music=0.6):
-    # This function was adapted from https://github.com/qlemaire22/speech-music-detection
-    duration_frame = 220 / 22050
-    n_frame = output.shape[1]
-
-    start_music = -1000
-    start_speech = -1000
-
-    for i in range(n_frame):
-        if output[0, i] == 1:
-            if i - start_speech > 1:
-                if (i - start_speech) * duration_frame <= max_silence_speech:
-                    output[0, start_speech:i] = 1
-
-            start_speech = i
-
-        if output[1, i] == 1:
-            if i - start_music > 1:
-                if (i - start_music) * duration_frame <= max_silence_music:
-                    output[1, start_music:i] = 1
-
-            start_music = i
-
-    start_music = -1000
-    start_speech = -1000
-
-    for i in range(n_frame):
-        if i != n_frame - 1:
-            if output[0, i] == 0:
-                if i - start_speech > 1:
-                    if (i - start_speech) * duration_frame <= min_speech:
-                        output[0, start_speech:i] = 0
-
-                start_speech = i
-
-            if output[1, i] == 0:
-                if i - start_music > 1:
-                    if (i - start_music) * duration_frame <= min_music:
-                        output[1, start_music:i] = 0
-
-                start_music = i
-        else:
-            if i - start_speech > 1:
-                if (i - start_speech) * duration_frame <= min_speech:
-                    output[0, start_speech:i + 1] = 0
-
-            if i - start_music > 1:
-                if (i - start_music) * duration_frame <= min_music:
-                    output[1, start_music:i + 1] = 0
-
-    return output
 
 """
-This function converts the predictions made by the neural network into a format that is understood by sed_eval.
+This function converts the predictions made by the neural network into a readable format.
 """
 
 def preds_to_se(p, audio_clip_length = 8.0):
@@ -130,6 +77,63 @@ def preds_to_se(p, audio_clip_length = 8.0):
   audio_events.sort(key = lambda x: x[0]) 
   return audio_events
 
+
+
+""" This function was adapted from https://github.com/qlemaire22/speech-music-detection """
+
+def smooth_output(output, min_speech=1.3, min_music=3.4, max_silence_speech=0.4, max_silence_music=0.6):
+    # This function was adapted from https://github.com/qlemaire22/speech-music-detection
+    duration_frame = 220 / 22050
+    n_frame = output.shape[1]
+
+    start_music = -1000
+    start_speech = -1000
+
+    for i in range(n_frame):
+        if output[0, i] == 1:
+            if i - start_speech > 1:
+                if (i - start_speech) * duration_frame <= max_silence_speech:
+                    output[0, start_speech:i] = 1
+
+            start_speech = i
+
+        if output[1, i] == 1:
+            if i - start_music > 1:
+                if (i - start_music) * duration_frame <= max_silence_music:
+                    output[1, start_music:i] = 1
+
+            start_music = i
+
+    start_music = -1000
+    start_speech = -1000
+
+    for i in range(n_frame):
+        if i != n_frame - 1:
+            if output[0, i] == 0:
+                if i - start_speech > 1:
+                    if (i - start_speech) * duration_frame <= min_speech:
+                        output[0, start_speech:i] = 0
+
+                start_speech = i
+
+            if output[1, i] == 0:
+                if i - start_music > 1:
+                    if (i - start_music) * duration_frame <= min_music:
+                        output[1, start_music:i] = 0
+
+                start_music = i
+        else:
+            if i - start_speech > 1:
+                if (i - start_speech) * duration_frame <= min_speech:
+                    output[0, start_speech:i + 1] = 0
+
+            if i - start_music > 1:
+                if (i - start_music) * duration_frame <= min_music:
+                    output[1, start_music:i + 1] = 0
+
+    return output
+
+
 def frames_to_time(f, sr = 22050.0, hop_size = 220):
   return f * hop_size / sr
 
@@ -157,24 +161,17 @@ def mk_preds_fa(audio_path, hop_size = 6.0, discard = 1.0, win_length = 8.0, sam
   audio_clip_length_samples = in_signal.shape[0]
   print('audio_clip_length_samples is {}'.format(audio_clip_length_samples))
 
-  #hop_size_samples = int(hop_size * sampling_rate)
   hop_size_samples = 220 * 602 - 1
 
-  #win_length_samples = int(win_length * sampling_rate)
   win_length_samples = 220 * 802 - 1
 
   n_preds = int(math.ceil((audio_clip_length_samples - win_length_samples) / hop_size_samples)) + 1
 
-  #print('n_preds is {}'.format(n_preds))
-
   in_signal_pad = np.zeros((n_preds * hop_size_samples + 200 * 220))
-
-  #print('in_signal_pad.shape is {}'.format(in_signal_pad.shape))
 
   in_signal_pad[0:audio_clip_length_samples] = in_signal
 
   preds = np.zeros((n_preds, 802, 2))
-  # mss_in = np.zeros((n_preds, 802, 80))
 
   # Split the predictions into batches of size batch_size. 
 
@@ -204,23 +201,6 @@ def mk_preds_fa(audio_path, hop_size = 6.0, discard = 1.0, win_length = 8.0, sam
       mss_batch[j, :, :] = M
 
     preds[i * batch_size:n_preds, :, :] = (model.predict(mss_batch) >= (0.5, 0.5)).astype(np.float)
-
-  print("preds.shape is {}".format(preds.shape))
-
-  # for i in range(n_preds):
-  #   #print('seg.shape is {}'.format(seg.shape))
-  #   seg = in_signal_pad[i * hop_size_samples:(i * hop_size_samples) + win_length_samples]
-
-  #   seg = librosa.util.normalize(seg)
-
-  #   mss = get_log_melspectrogram(seg)
-  #   M = mss.T
-
-  #   p = (model.predict(M.reshape((1, 802, 80))) >= (0.5, 0.5)).astype(np.float)
-  #   preds[i, :, :] = p[0]
-  #   mss_in[i, :, :] = M
-
-  # preds = (model.predict(mss_in) >= (0.5, 0.5)).astype(np.float)
 
   preds_mid = np.copy(preds[1:-1, 100:702, :])
 
@@ -280,7 +260,7 @@ if __name__ == '__main__':
       optimizer=keras.optimizers.Adam(learning_rate=0.001),
       loss=[keras.losses.BinaryCrossentropy()], metrics=['binary_accuracy'])
 
-  model.summary()
+  # model.summary()
 
   model.load_weights(m)
 
