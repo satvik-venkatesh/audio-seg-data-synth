@@ -1,6 +1,16 @@
 # audio-seg-data-synth
 
-This repository contains code associated with the paper titled "Artificially Synthesising Data for Audio Classification and Segmentation to improve speech and music detection in Radio Broadcast" submitted to IEEE ICASSP 2021.
+This repository contains code associated with the paper titled "Artificially Synthesising Data for Audio Classification and Segmentation to Improve Speech and Music Detection in Radio Broadcast" accepted for publication in IEEE ICASSP 2021.
+
+```BibTeX
+@InProceedings{venkatesh2021artificially,
+  author    = {Satvik Venkatesh and David Moffat and Alexis Kirke and G\"{o}zel Shakeri and Stephen Brewster and J\"{o}rg Fachner and Helen Odell-Miller and Alex Street and Nicolas Farina and Sube Banerjee and Eduardo Reck Miranda},
+  booktitle = {IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  title     = {{Artificially Synthesising Data for Audio Classification and Segmentation to Improve Speech and Music Detection in Radio Broadcast}},
+  year      = {2021},
+}
+```
+
 
 Machine learning models for audio segmentation and music-speech detection are generally trained on proprietary audio, which cannot be shared. Labelling this data is time-consuming and expensive, which discourages new researchers in this field. In this project, we artificially synthesise data that resembles radio signals by replicating the workflow of a radio DJ. 
 
