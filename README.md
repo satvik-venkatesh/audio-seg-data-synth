@@ -1,6 +1,6 @@
 # audio-seg-data-synth
 
-This repository contains code associated with the paper titled "Artificially Synthesising Data for Audio Classification and Segmentation to Improve Speech and Music Detection in Radio Broadcast" accepted for publication in IEEE ICASSP 2021.
+This repository contains code associated with the paper titled "Artificially Synthesising Data for Audio Classification and Segmentation to Improve Speech and Music Detection in Radio Broadcast" accepted for publication in IEEE ICASSP 2021 [[PDF](https://arxiv.org/pdf/2102.09959.pdf)].
 
 ```BibTeX
 @InProceedings{venkatesh2021artificially,
