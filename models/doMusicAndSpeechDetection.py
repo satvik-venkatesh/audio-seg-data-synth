@@ -213,11 +213,16 @@ def mk_preds_fa(audio_path, hop_size = 6.0, discard = 1.0, win_length = 8.0, sam
 
   preds_mid_2 = preds_mid.reshape(-1, 2)
 
-  oa_preds = preds[0, 0:702, :] # oa stands for overall predictions
+  if preds.shape[0] > 1:
+    oa_preds = preds[0, 0:702, :] # oa stands for overall predictions
+
+  else:
+    oa_preds = preds[0, 0:802, :] # oa stands for overall predictions
 
   oa_preds = np.concatenate((oa_preds, preds_mid_2), axis = 0)
 
-  oa_preds = np.concatenate((oa_preds, preds[-1, 100:, :]), axis = 0)
+  if preds.shape[0] > 1:
+    oa_preds = np.concatenate((oa_preds, preds[-1, 100:, :]), axis = 0)
 
   return oa_preds
 
